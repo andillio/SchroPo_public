@@ -51,7 +51,7 @@ def GetExternalPotential():
 	return V_ext_func(R)*(1. - fraction_FDM)
 
 
-def StarICs(rho):
+def StarICs():
 	cp = np_
 	if gpu:
 		cp = np	
@@ -79,10 +79,14 @@ def SetICs():
 	cp = np_
 	if gpu:
 		cp = np
+
+	r,v = StarICs()
+
 	s = MS.Solver()
 	### set simulation parameters
 	s.SetParams(simName=simName, N = N, data_drops = data_drops, padded=padded,
-	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, gpu = gpu)
+	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, r = r, v = v,
+	 np = n_stars, mp = 0, gpu = gpu)
 	### set initial field
 
 	s.initial_drop = 0
