@@ -12,9 +12,9 @@ import Solvers.meshSolver as MS
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
-simName = "haloTest"
+simName = "starTest"
 N = 256
-data_drops = 150
+data_drops = 20
 padded = True
 cf = .1
 nf = 1
@@ -90,7 +90,7 @@ def SetICs():
 
 	psi = cp.zeros((nf,N,N,N)) + 0j
 	
-	psi[0,:,:,:] = cp.load('ICs/psi_256.npy') * cp.sqrt(fraction_FDM)
+	psi[0,:,:,:] = cp.load('Data/haloTest/drop10.npy') * cp.sqrt(fraction_FDM)
 
 	s.V_ext = GetExternalPotential()
 	s.set_psi(psi)
@@ -112,5 +112,5 @@ if __name__ == "__main__":
 
 	# - run sim
 	s.RunSim()
-	s.ShowDensity("final_density")
+	# s.ShowDensity("final_density")
 	

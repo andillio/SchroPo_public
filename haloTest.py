@@ -14,7 +14,7 @@ import Solvers.meshSolver as MS
 # meshTest2b - use new update rule
 simName = "haloTest"
 N = 256
-data_drops = 150
+data_drops = 10
 padded = True
 cf = .1
 nf = 1
@@ -87,5 +87,5 @@ if __name__ == "__main__":
 
 	# - run sim
 	s.RunSim()
-	s.ShowDensity("final_density")
+	# s.ShowDensity("final_density")
 	
