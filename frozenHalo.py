@@ -22,7 +22,7 @@ C = au.G*4*np.pi
 Tf = 1500.
 gpu = True
 fraction_FDM = .5
-
+n_stars = int(1e4)
 
 meandens = 2.775e+11*0.7**2 * 0.31 * 1e-9 # mean density
 Rhalf = 0.3 # half light radius
@@ -51,6 +51,30 @@ def GetExternalPotential():
 	return V_ext_func(R)*(1. - fraction_FDM)
 
 
+def StarICs(rho):
+	cp = np_
+	if gpu:
+		cp = np	
+	
+	rng = cp.random.default_rng()
+	M_Scale = np.mean(rho)*L**3
+
+	r = cp.zeros((n_stars, 3))
+	v = cp.zeros((n_stars, 3))
+
+	R_mag = cp.abs(cp.random.normal(0, R_initial_star, size = (n_stars)))
+	r_hat = mu.random_unit_vectors(n_stars)
+	r_hat = su.gpuThis(r_hat)
+	v_vec = cp.random.normal(0, R_initial_star, size = (n_stars,3))
+	V_mag = np.sqrt(M_Scale * au.G / R_mag) * 1e-6
+
+	for i in range(n_stars):
+		r[i,:] = R_mag[i]*r_hat[i]
+		v[i,:] = V_mag[i]*v_vec[i]
+
+	return r, v
+
+
 def SetICs():
 	cp = np_
 	if gpu:
@@ -72,6 +96,7 @@ def SetICs():
 	s.set_psi(psi)
 	s.set_K()
 	s.oldUpdateRule = True
+	s.freezeDensity = True
 
 	return s
 
