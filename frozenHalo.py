@@ -5,6 +5,8 @@ import cupy as np
 import numpy as np_
 import astroUtils as au
 import gridUtils as gu
+import mathUtils as mu
+import sysUtils as su
 import sys
 sys.path.insert(1, 'Solvers')
 import Solvers.meshSolver as MS
@@ -38,6 +40,7 @@ cp = np_
 if gpu:
 	cp = np
 L = 20*2 / cp.sqrt(3)
+R_initial_star = 2.
 m22 = cp.array([5.0])
 rho0 = Mvir/4/cp.pi/Rs**3 /(cp.log(1+con)-con/(1+con)) # scale density in solar masses / kpc^3
 
@@ -57,14 +60,13 @@ def StarICs():
 		cp = np	
 	
 	rng = cp.random.default_rng()
-	M_Scale = np.mean(rho)*L**3
+	M_Scale = rho0*L**3
 
 	r = cp.zeros((n_stars, 3))
 	v = cp.zeros((n_stars, 3))
 
 	R_mag = cp.abs(cp.random.normal(0, R_initial_star, size = (n_stars)))
 	r_hat = mu.random_unit_vectors(n_stars)
-	r_hat = su.gpuThis(r_hat)
 	v_vec = cp.random.normal(0, R_initial_star, size = (n_stars,3))
 	V_mag = np.sqrt(M_Scale * au.G / R_mag) * 1e-6
 
