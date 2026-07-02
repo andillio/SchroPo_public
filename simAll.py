@@ -96,8 +96,8 @@ def SetICs():
 	 mp = M/n_p)
 	### set initial field
 	s.D = 3
-	s.M_encl_func = M_encl_func
-	s.V_ext_mesh_func = V_ext_func
+	s.M_encl_func = M_encl_func # used for particle forces
+	s.V_ext_mesh_func = V_ext_func # used for field forces
 	s.M_encl_func_on = True
 	s.explicit_particle_forces = True
 	s.eps = 1e-9

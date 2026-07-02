@@ -45,6 +45,9 @@ rho0 = Mvir/4/cp.pi/Rs**3 /(cp.log(1+con)-con/(1+con)) # scale density in solar 
 def V_ext_func(R):
 	return au.V_NFW(R, Rs, rho0)
 
+# function used to calculate cdm effect on stars
+def M_encl_func(r):
+	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM)
 
 def GetExternalPotential():
 	R, _, _ = gu.sphrGrid(N, L, gpu = gpu)
@@ -60,7 +63,10 @@ def SetICs():
 	s.SetParams(simName=simName, N = N, data_drops = data_drops, padded=padded,
 	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, gpu = gpu)
 	### set initial field
-
+	s.D = 3
+	s.M_encl_func = M_encl_func
+	s.V_ext_mesh_func = V_ext_func
+	s.M_encl_func_on = True
 	s.initial_drop = 0
 	s.T_initial = 0.
 
@@ -68,7 +74,6 @@ def SetICs():
 	
 	psi[0,:,:,:] = cp.load('ICs/psi_256.npy') * cp.sqrt(fraction_FDM)
 
-	s.V_ext = GetExternalPotential()
 	s.set_psi(psi)
 	s.set_K()
 	s.oldUpdateRule = True
