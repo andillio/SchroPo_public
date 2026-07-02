@@ -6,13 +6,14 @@ import mathUtils as mu
 import matplotlib.pyplot as plt 
 import numpy as np 
 
-simName = 'physTest1a_stripped04'
+simName = 'physTest1a'
 
 
 def PlotStuff(d):
 	data_drops = d.data_drops
 	
 	initial_drop = 0 
+	second_drop = 1
 	mid_drop = d.data_drops // 2
 	final_drop = d.data_drops 
 
@@ -23,7 +24,7 @@ def PlotStuff(d):
 	x = [-L/2., L/2.]
 	print(dx)
 
-	fo = pu.FigObj(3,2)
+	fo = pu.FigObj(4,2)
 
 	psi = d.LoadPsi(initial_drop)
 	slice_ = d.GetFieldDensity()[N//2,:,:]
@@ -31,6 +32,16 @@ def PlotStuff(d):
 	T_i = T * float(initial_drop) / data_drops
 	fo.AddText(r'$%i \, [\mathrm{Myr}]$'%(T_i))
 	fo.RemoveXLabels()
+
+	psi = d.LoadPsi(second_drop)
+	slice_ = d.GetFieldDensity()[N//2,:,:]
+	fo.AddDens2d(x, np.log(slice_) )
+	T_s = T * float(second_drop) / data_drops
+	fo.AddText(r'$%i \, [\mathrm{Myr}]$'%(T_s))
+	fo.RemoveXLabels()
+	fo.RemoveYLabels()	
+
+
 
 	psi = d.LoadPsi(mid_drop)
 	slice_ = d.GetFieldDensity()[N//2,:,:]
@@ -58,6 +69,18 @@ def PlotStuff(d):
 	fo.AddLine(rX, rY, ls = ' ', mk = '.', alpha = 0.01, color = 'r')
 	fo.SetXLim(-L/2, L/2)
 	fo.SetYLim(-L/2, L/2)
+
+	r,v,psi = d.LoadData(second_drop,center = False)
+	print(np.mean(r, axis = 0))
+	proj = np.sum( d.GetFieldDensity() , axis = 0)*dx
+	rX = r[:,2]
+	rY = r[:,1]
+	proj = np.sum( d.GetFieldDensity() , axis = 0)*dx
+	fo.AddDens2d(x, np.log(proj))
+	fo.AddLine(rX, rY, ls = ' ', mk = '.', alpha = 0.01, color = 'r')
+	fo.SetXLim(-L/2, L/2)
+	fo.SetYLim(-L/2, L/2)
+	fo.RemoveYLabels()
 
 	r,v,psi = d.LoadData(mid_drop,center = False)
 	print(np.mean(r, axis = 0))

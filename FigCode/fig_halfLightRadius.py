@@ -5,9 +5,7 @@ import plotUtils as pu
 import mathUtils as mu
 import numpy as np 
 
-simNames = [
- "test_positive_self_interact",
-]
+simNames = ["physTest1a",]
 colors = ['r','b','g','c','m','y','k']
 
 
@@ -39,3 +37,4 @@ if __name__ == "__main__":
 	fo.SetYLabel(r'$R$')
 	fo.SetXLabel(r'$t$')
 	fo.show()
+	fo.save(d.dataDir + 'halflightradius')

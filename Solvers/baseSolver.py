@@ -875,6 +875,7 @@ class Solver():
 				if self.mod_positions:
 				    r_vecs[r_vecs > self.L/2.] -= self.L
 				    r_vecs[r_vecs < -1*self.L/2.] += self.L
+
 				R = mu.Norm_L2(r_vecs, axes = (1)) + self.eps 
 				acc[i] = self.C*np.sum(mp_[:,np.newaxis]*r_vecs / R[:,np.newaxis]**3, axis = 0) / (4*np.pi)
 			

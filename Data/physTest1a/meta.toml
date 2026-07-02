@@ -1,0 +1,24 @@
+[physics]
+Tfinal = 2000.0
+L = 23.094010767585033
+C = 5.642300405847268e-11
+D = 3
+m22 = [ 5.0,]
+
+[simulation]
+N = 32
+n_particles = 10000
+mp_mean = 10.0
+drops = 10
+padded = true
+c_f = 0.1
+
+[extras]
+fraction_FDM = 0.5
+r_ic_directory = "Data/starTest/r/drop20.npy"
+v_ic_directory = "Data/starTest/v/drop20.npy"
+field_ic_directory = "Data/starTest/psi/drop20.npy"
+R = 0.5
+M = 100000.0
+Rs = 2.0
+rho0 = "np.float64(1887521.334906681)"

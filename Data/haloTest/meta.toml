@@ -1,0 +1,17 @@
+
+		# all units in kpc, Msolar, Myr
+		[physics]
+		Tfinal                      = 1500.0 # float, final sim time
+		L                           = 23.094010767585033 # float, box length
+		C 							= 5.642300405847268e-11 # float, poisson's constant
+		D 							= 3 # int, number of spatial dimensions
+		m22 						= [5.0] # hbar / m_field
+
+		[simulation]
+		N                           = 32 # int, grid size
+		n_particles                 = 0 # int, number of simulation particles
+		mp_mean		 				= nan # float, mass of simulation particles
+		drops                       = 150 # int, number of data drops
+		padded 						= true # bool, pad density with 0s
+		c_f                         = 0.1 # float, timestep courant factor
+		

@@ -1,7 +1,10 @@
 # pylint: disable=C,W
 # this test is designed to check that our distribution
 # is approximately stable under an external nfw potential
-import cupy as np
+try:
+	import cupy as np
+except ImportError:
+	import numpy as np
 import numpy as np_
 import astroUtils as au
 import gridUtils as gu
@@ -15,14 +18,14 @@ import Solvers.meshSolver as MS
 # mestTest2 - control test
 # meshTest2b - use new update rule
 simName = "starTest"
-N = 256
+N = 32
 data_drops = 20
 padded = True
 cf = .1
 nf = 1
 C = au.G*4*np.pi
 Tf = 1500.
-gpu = True
+gpu = False
 fraction_FDM = .5
 n_stars = int(1e4)
 
@@ -39,7 +42,7 @@ con = Rvir / Rs # concentration parameter
 cp = np_
 if gpu:
 	cp = np
-L = 20*2 / cp.sqrt(3)
+L = Rvir*2 / cp.sqrt(3)
 R_initial_star = 2.
 m22 = cp.array([5.0])
 rho0 = Mvir/4/cp.pi/Rs**3 /(cp.log(1+con)-con/(1+con)) # scale density in solar masses / kpc^3
@@ -67,6 +70,7 @@ def StarICs():
 
 	R_mag = cp.abs(cp.random.normal(0, R_initial_star, size = (n_stars)))
 	r_hat = mu.random_unit_vectors(n_stars)
+	#r_hat = su.gpuThis(r_hat)
 	v_vec = cp.random.normal(0, R_initial_star, size = (n_stars,3))
 	V_mag = np.sqrt(M_Scale * au.G / R_mag) * 1e-6
 
@@ -96,7 +100,7 @@ def SetICs():
 
 	psi = cp.zeros((nf,N,N,N)) + 0j
 	
-	psi[0,:,:,:] = cp.load('Data/haloTest/drop10.npy') * cp.sqrt(fraction_FDM)
+	psi[0,:,:,:] = cp.load('Data/haloTest/psi/drop150.npy') * cp.sqrt(fraction_FDM)
 
 	s.V_ext = GetExternalPotential()
 	s.set_psi(psi)
@@ -118,5 +122,5 @@ if __name__ == "__main__":
 
 	# - run sim
 	s.RunSim()
-	# s.ShowDensity("final_density")
+	s.ShowDensity("frozen_final_density")
 	

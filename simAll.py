@@ -2,27 +2,35 @@
 # simulates stars + fdm + cdm
 # represented as corpuscular particles, a field,
 # and an external potential respectively
-import cupy as np
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
+
 import numpy as np_
+try:
+	import cupy as np
+except ImportError:
+	import numpy as np
 import astroUtils as au
 import gridUtils as gu
 import plotUtils as pu
 import sys
 sys.path.insert(1, 'Solvers')
-import Solvers.meshSolver as MS
+import Solvers.mesh_solver_vect as MS
 
 # sims
 # - physTest1a: ics1a, fraction 0.5
 # - physTest1b: ics1a, fraction 0.5
 # - need to test physTest1a with old update
 simName = "physTest1a"
-N = 256
+N = 32
 data_drops = 10
 padded = True
 cf = .1
 nf = 1
 C = au.G*4*np.pi
-Tf = 1000.
+Tf = 2000.
 gpu = True
 fraction_FDM = 0.5
 
@@ -40,9 +48,9 @@ con = Rvir / Rs # concentration parameter
 cp = np_
 if gpu:
 	cp = np
-L = 20*2 / cp.sqrt(3)
+L = Rvir*2 / cp.sqrt(3)
 dx = L/N
-m22 = cp.array([5.00000001])
+m22 = cp.array([5.0])
 rho0 = Mvir/4/cp.pi/Rs**3 /(cp.log(1+con)-con/(1+con)) # scale density in solar masses / kpc^3
 rho0_ = Mvir/4/np_.pi/Rs**3 /(np_.log(1+con)-con/(1+con)) # scale density in solar masses / kpc^3
 
@@ -51,9 +59,9 @@ rho0_ = Mvir/4/np_.pi/Rs**3 /(np_.log(1+con)-con/(1+con)) # scale density in sol
 # field_dir = 'Data/physTest1a/psi/drop10.npy'
 # r_dir = 'Data/physTest1a/r/drop10.npy'
 # v_dir = 'Data/physTest1a/v/drop10.npy'
-r_dir              = 'Data/ics1a/r/drop19.npy'
-v_dir              = 'Data/ics1a/v/drop19.npy'
-field_dir          = 'Data/meshTest1b/psi/drop4.npy'
+r_dir              = 'Data/starTest/r/drop20.npy'
+v_dir              = 'Data/starTest/v/drop20.npy'
+field_dir          = 'Data/starTest/psi/drop20.npy'
 M = 1e5 # plummer sphere mass
 R = .5
 initial_drop = 0

@@ -8,7 +8,7 @@ import numpy as np
 
 # simName = "ics_2_5m22"
 # simName = "solitonData_light"
-simName = "newHalo_trans"
+simName = "haloTest"
 
 
 def GetCenterOfMass(rho):

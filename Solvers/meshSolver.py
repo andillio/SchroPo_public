@@ -309,6 +309,12 @@ class Solver(BS.Solver):
 			mp = np.mean(mp)
 
 		padded_ = "true" if self.padded else "false"
+		# repr() each element so floats always keep a leading/trailing digit
+		# (e.g. 5.0 not 5.), which the strict `toml` parser requires.
+		m22_ = "[" + ", ".join(repr(float(x)) for x in np.atleast_1d(self.m22)) + "]"
+		# TOML has no null; write nan when there are no particles so the value
+		# stays a valid float instead of the invalid literal `None`.
+		mp_ = repr(float(mp)) if mp is not None else "nan"
 		text = f'''
 		# all units in kpc, Msolar, Myr
 		[physics]
@@ -316,12 +322,12 @@ class Solver(BS.Solver):
 		L                           = {self.L} # float, box length
 		C 							= {self.C} # float, poisson's constant
 		D 							= {self.D} # int, number of spatial dimensions
-		m22 						= {np.array2string(self.m22, separator=', ')} # hbar / m_field
+		m22 						= {m22_} # hbar / m_field
 
 		[simulation]
 		N                           = {self.N} # int, grid size
 		n_particles                 = {self.np} # int, number of simulation particles
-		mp_mean		 				= {mp} # float, mass of simulation particles
+		mp_mean		 				= {mp_} # float, mass of simulation particles
 		drops                       = {self.data_drops+ self.initial_drop} # int, number of data drops
 		padded 						= {padded_} # bool, pad density with 0s
 		c_f                         = {self.cf} # float, timestep courant factor
@@ -345,7 +351,7 @@ class Solver(BS.Solver):
 		if CUPY_IMPORTED and self.gpu:
 			np = cp
 		super().DataDrop(i)
-		if self.savePsi or (i == 0 or i == self.data_drops // 2 or i == self.data_drops // 3 or i == self.data_drops):
+		if self.savePsi or (i == 0 or i==1 or i == self.data_drops // 2 or i == self.data_drops // 3 or i == self.data_drops):
 			np.save("Data/" + self.simName + f"/psi/drop{i+ self.initial_drop}.npy", self.psi)
 
 

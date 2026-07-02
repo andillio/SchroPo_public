@@ -1,6 +1,9 @@
 # pylint: disable=C,W
-import cupy as np
 import numpy as np_
+try:
+	import cupy as np
+except ImportError:
+	import numpy as np
 import time
 import astroUtils as au
 import gridUtils as gu
@@ -21,7 +24,7 @@ cf = .1
 nf = 1
 C = au.G*4*np.pi
 Tf = 2000.
-gpu = True
+gpu = False
 fraction_FDM = 1.0
 
 cp = np_

@@ -1,26 +1,30 @@
 # pylint: disable=C,W
 # this test is designed to check that our distribution
 # is approximately stable under an external nfw potential
-import cupy as np
 import numpy as np_
+try:
+	import cupy as np
+except ImportError:
+	import numpy as np
 import astroUtils as au
 import gridUtils as gu
 import sys
 sys.path.insert(1, 'Solvers')
 import Solvers.meshSolver as MS
+import os
 
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
 simName = "haloTest"
-N = 256
-data_drops = 10
+N = 32
+data_drops = 150
 padded = True
 cf = .1
 nf = 1
 C = au.G*4*np.pi
 Tf = 1500.
-gpu = True
+gpu = False
 fraction_FDM = .5
 
 
@@ -37,7 +41,7 @@ con = Rvir / Rs # concentration parameter
 cp = np_
 if gpu:
 	cp = np
-L = 20*2 / cp.sqrt(3)
+L = Rvir*2 / np.sqrt(3) # box size in kpc
 m22 = cp.array([5.0])
 rho0 = Mvir/4/cp.pi/Rs**3 /(cp.log(1+con)-con/(1+con)) # scale density in solar masses / kpc^3
 
@@ -65,8 +69,9 @@ def SetICs():
 	s.T_initial = 0.
 
 	psi = cp.zeros((nf,N,N,N)) + 0j
-	
-	psi[0,:,:,:] = cp.load('ICs/psi_256.npy') * cp.sqrt(fraction_FDM)
+
+	IC_dir = os.path.join(os.getcwd(), "../HaloConstructor_public/ICs")
+	psi[0,:,:,:] = cp.load(os.path.join(IC_dir, 'eri_300Emax.npy')) * cp.sqrt(fraction_FDM)
 
 	s.V_ext = GetExternalPotential()
 	s.set_psi(psi)
