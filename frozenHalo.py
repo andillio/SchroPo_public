@@ -1,6 +1,10 @@
 # pylint: disable=C,W
 # this test is designed to check that our distribution
 # is approximately stable under an external nfw potential
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
 try:
 	import cupy as np
 except ImportError:
@@ -17,17 +21,21 @@ import Solvers.meshSolver as MS
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
-simName = "starTest"
-N = 32
+simName = "starTest_Plummer"
+N = 256
 data_drops = 20
 padded = True
 cf = .1
 nf = 1
 C = au.G*4*np.pi
 Tf = 1500.
-gpu = False
+gpu = True
 fraction_FDM = .5
 n_stars = int(1e4)
+
+# Plummer sphere for the sampled stars — matches haloTest.py
+M_stars = 1e6   # total Plummer mass in solar masses
+a_stars = 0.1   # Plummer scale radius in kpc
 
 meandens = 2.775e+11*0.7**2 * 0.31 * 1e-9 # mean density
 Rhalf = 0.3 # half light radius
@@ -53,11 +61,18 @@ def V_ext_func(R):
 
 # function used to calculate cdm effect on stars
 def M_encl_func(r):
-	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM)
+	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM) + M_Plummer(r)
 
 def GetExternalPotential():
 	R, _, _ = gu.sphrGrid(N, L, gpu = gpu)
 	return V_ext_func(R)*(1. - fraction_FDM)
+
+
+def M_Plummer(r):
+	return M_stars * r**3 / (r**2 + a_stars**2)**(3/2)
+
+def V_Plummer(R):
+	return -au.G*M_stars / cp.sqrt(R**2 + a_stars**2)
 
 
 def StarICs():
@@ -73,7 +88,7 @@ def StarICs():
 
 	R_mag = cp.abs(cp.random.normal(0, R_initial_star, size = (n_stars)))
 	r_hat = mu.random_unit_vectors(n_stars)
-	#r_hat = su.gpuThis(r_hat)
+	r_hat = su.gpuThis(r_hat)
 	v_vec = cp.random.normal(0, R_initial_star, size = (n_stars,3))
 	V_mag = np.sqrt(M_Scale * au.G / R_mag) * 1e-6
 
@@ -83,13 +98,36 @@ def StarICs():
 
 	return r, v
 
+def StarICs_Plummer():
+	cp = np_
+	if gpu:
+		cp = np
+
+	u = cp.random.uniform(0, 1, size = n_stars)
+	r_mag = a_stars / cp.sqrt(u**(-2./3.) - 1)
+
+	r_hat = mu.random_unit_vectors(n_stars)
+	r_hat = su.gpuThis(r_hat)
+
+	r = r_mag[:, cp.newaxis] * r_hat
+
+	M_enc = M_encl_func(r_mag)
+
+	v_mag = cp.sqrt(au.G*M_enc / r_mag)
+
+	v_hat = cp.random.normal(0, R_initial_star, size = (n_stars,3))
+
+	v = v_mag[:, cp.newaxis] * v_hat / cp.linalg.norm(v_hat, axis=1)[:, cp.newaxis]
+
+	return r, v
+
 
 def SetICs():
 	cp = np_
 	if gpu:
 		cp = np
 
-	r,v = StarICs()
+	r,v = StarICs_Plummer()
 
 	s = MS.Solver()
 	### set simulation parameters
@@ -108,9 +146,9 @@ def SetICs():
 
 	psi = cp.zeros((nf,N,N,N)) + 0j
 	
-	psi[0,:,:,:] = cp.load('Data/haloTest/psi/drop150.npy') * cp.sqrt(fraction_FDM)
+	psi[0,:,:,:] = cp.load('Data/haloTest_w_plummer/psi/drop150.npy') * cp.sqrt(fraction_FDM)
 
-	s.V_ext = GetExternalPotential()
+	#s.V_ext = GetExternalPotential()
 	s.set_psi(psi)
 	s.set_K()
 	s.oldUpdateRule = True
