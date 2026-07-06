@@ -61,7 +61,7 @@ def V_ext_func(R):
 
 # function used to calculate cdm effect on stars
 def M_encl_func(r):
-	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM) + M_Plummer(r)
+	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM)
 
 def GetExternalPotential():
 	R, _, _ = gu.sphrGrid(N, L, gpu = gpu)
@@ -103,21 +103,58 @@ def StarICs_Plummer():
 	if gpu:
 		cp = np
 
-	u = cp.random.uniform(0, 1, size = n_stars)
-	r_mag = a_stars / cp.sqrt(u**(-2./3.) - 1)
+	X1 = cp.random.uniform(0, 1, n_stars)
+	X2 = cp.random.uniform(0, 1, n_stars)
+	X3 = cp.random.uniform(0, 1, n_stars)
 
-	r_hat = mu.random_unit_vectors(n_stars)
-	r_hat = su.gpuThis(r_hat)
+	a = (X1**(-2/3) - 1)**(-0.5)
 
-	r = r_mag[:, cp.newaxis] * r_hat
+	z = (1 - 2*X2) * a
+	x = cp.sqrt(a**2 - z**2) * cp.cos(2*cp.pi*X3)
+	y = cp.sqrt(a**2 - z**2) * cp.sin(2*cp.pi*X3)
 
-	M_enc = M_encl_func(r_mag)
+	v_esc = cp.sqrt(2*au.G*M_stars / a_stars)*(1+a)**(-1/4)
 
-	v_mag = cp.sqrt(au.G*M_enc / r_mag)
+	v = []
 
-	v_hat = cp.random.normal(0, R_initial_star, size = (n_stars,3))
+	for star in range(n_stars):
+		X4 = cp.random.uniform(0, 1)
+		X5 = cp.random.uniform(0, 1)
+		while X4**2 * (1 - X4**2)**3.5 <= 0.1*X5:
+			X4 = cp.random.uniform(0, 1)
+			X5 = cp.random.uniform(0, 1)
+		
+		q = X4
 
-	v = v_mag[:, cp.newaxis] * v_hat / cp.linalg.norm(v_hat, axis=1)[:, cp.newaxis]
+		v_mag = v_esc[star] * q
+
+		X6 = cp.random.uniform(0, 1)
+		X7 = cp.random.uniform(0, 1)
+
+		v_z = (1 - 2*X6) * v_mag
+		v_x = cp.sqrt(v_mag**2 - v_z**2) * cp.cos(2*cp.pi*X7)
+		v_y = cp.sqrt(v_mag**2 - v_z**2) * cp.sin(2*cp.pi*X7)
+
+		v.append([v_x, v_y, v_z])
+	
+	r = cp.array([x, y, z]).T
+	r_mag = cp.sqrt(cp.sum(r**2, axis = 1))
+	v = cp.array(v)
+	v_mag = cp.sqrt(cp.sum(v**2, axis = 1))
+
+	#Virial check
+
+	m_star = M_stars / n_stars
+
+	W = -cp.sum(m_star * r_mag * au.G*M_stars * r_mag / (r_mag**2 + a_stars**2)**(3/2))
+
+	KE = 0.5 * cp.sum(m_star * v_mag**2)
+
+	scale_factor = cp.sqrt(cp.abs(W)/(2*KE))
+
+	v_mag *= scale_factor
+	v *= scale_factor
+
 
 	return r, v
 
