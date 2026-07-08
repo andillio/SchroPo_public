@@ -23,8 +23,8 @@ import Solvers.mesh_solver_vect as MS
 # - physTest1a: ics1a, fraction 0.5
 # - physTest1b: ics1a, fraction 0.5
 # - need to test physTest1a with old update
-simName = "physTest1a"
-N = 32
+simName = "physTest1a_plummer"
+N = 256
 data_drops = 10
 padded = True
 cf = .1
@@ -59,14 +59,15 @@ rho0_ = Mvir/4/np_.pi/Rs**3 /(np_.log(1+con)-con/(1+con)) # scale density in sol
 # field_dir = 'Data/physTest1a/psi/drop10.npy'
 # r_dir = 'Data/physTest1a/r/drop10.npy'
 # v_dir = 'Data/physTest1a/v/drop10.npy'
-r_dir              = 'Data/starTest/r/drop20.npy'
-v_dir              = 'Data/starTest/v/drop20.npy'
-field_dir          = 'Data/starTest/psi/drop20.npy'
-M = 1e5 # plummer sphere mass
-R = .5
+r_dir              = 'Data/starTest_Plummer/r/drop20.npy'
+v_dir              = 'Data/starTest_Plummer/v/drop20.npy'
+field_dir          = 'Data/starTest_Plummer/psi/drop20.npy'
+
+M_stars = 1e6 # plummer sphere mass
+a_stars = 0.1
+
 initial_drop = 0
 initial_time = 0.
-norm = cp.sqrt(fraction_FDM) 
 
 hbar_ = au.h_tilde(m22)[0]
 sigma = cp.sqrt(au.G * Mvir / Rvir)
@@ -95,13 +96,13 @@ def SetICs():
 	r[r > L/2.] -= L
 	v = cp.load(v_dir)
 	n_p = len(v)
-	psi[0,:,:,:] = cp.load(field_dir) * norm
+	psi[0,:,:,:] = cp.load(field_dir)
 
 	s = MS.Solver()
 	### set simulation parameters
 	s.SetParams(simName=simName, N = N, data_drops = data_drops, padded=padded,
 	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, gpu = gpu, r = r, v = v, np = n_p,
-	 mp = M/n_p)
+	 mp = M_stars/n_p)
 	### set initial field
 	s.D = 3
 	s.M_encl_func = M_encl_func # used for particle forces
@@ -120,8 +121,8 @@ def SetICs():
 	extras['r_ic_directory'] = r_dir
 	extras['v_ic_directory'] = v_dir
 	extras['field_ic_directory'] = field_dir
-	extras['R'] = R
-	extras['M'] = M
+	extras['R'] = a_stars
+	extras['M'] = M_stars
 	extras['Rs'] = Rs
 	extras['rho0'] = rho0_
 	s.extras = extras

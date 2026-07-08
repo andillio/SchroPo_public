@@ -16,12 +16,12 @@ import mathUtils as mu
 import sysUtils as su
 import sys
 sys.path.insert(1, 'Solvers')
-import Solvers.meshSolver as MS
+import Solvers.mesh_solver_vect as MS
 
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
-simName = "starTest_Plummer"
+simName = "starTest_plummer_256"
 N = 256
 data_drops = 20
 padded = True
@@ -68,12 +68,6 @@ def GetExternalPotential():
 	return V_ext_func(R)*(1. - fraction_FDM)
 
 
-def M_Plummer(r):
-	return M_stars * r**3 / (r**2 + a_stars**2)**(3/2)
-
-def V_Plummer(R):
-	return -au.G*M_stars / cp.sqrt(R**2 + a_stars**2)
-
 
 def StarICs():
 	cp = np_
@@ -107,7 +101,7 @@ def StarICs_Plummer():
 	X2 = cp.random.uniform(0, 1, n_stars)
 	X3 = cp.random.uniform(0, 1, n_stars)
 
-	a = (X1**(-2/3) - 1)**(-0.5)
+	a = a_stars * (X1**(-2/3) - 1)**(-0.5)
 
 	z = (1 - 2*X2) * a
 	x = cp.sqrt(a**2 - z**2) * cp.cos(2*cp.pi*X3)
@@ -166,11 +160,13 @@ def SetICs():
 
 	r,v = StarICs_Plummer()
 
+	mp = M_stars / n_stars
+
 	s = MS.Solver()
 	### set simulation parameters
 	s.SetParams(simName=simName, N = N, data_drops = data_drops, padded=padded,
 	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, r = r, v = v,
-	 np = n_stars, mp = 0, gpu = gpu)
+	 np = n_stars, mp = mp, gpu = gpu)
 	### set initial field
 	s.D = 3
 	s.M_encl_func = M_encl_func
@@ -183,7 +179,7 @@ def SetICs():
 
 	psi = cp.zeros((nf,N,N,N)) + 0j
 	
-	psi[0,:,:,:] = cp.load('Data/haloTest_w_plummer/psi/drop150.npy') * cp.sqrt(fraction_FDM)
+	psi[0,:,:,:] = cp.load(f'Data/haloTest_w_plummer_{N}/psi/drop150.npy')
 
 	#s.V_ext = GetExternalPotential()
 	s.set_psi(psi)

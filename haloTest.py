@@ -13,14 +13,14 @@ import astroUtils as au
 import gridUtils as gu
 import sys
 sys.path.insert(1, 'Solvers')
-import Solvers.meshSolver as MS
+import Solvers.mesh_solver_vect as MS
 import os
 
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
-simName = "haloTest_w_plummer"
 N = 256
+simName = f"haloTest_plummer_{N}"
 data_drops = 150
 padded = True
 cf = .1
@@ -71,14 +71,18 @@ def V_ext_func(R):
 def M_encl_func(r):
 	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM) + M_Plummer(r)
 
+#def V_ext_func(R):
+	return au.V_NFW(R, Rs, rho0)*(1. - fraction_FDM)
+#
+#def M_encl_func(r):
+#	return au.M_NFW(r, Rs, rho0)*(1. - fraction_FDM)
 
+#central_dens_plummer = rho_Plummer(0.)
+#print(f"central density of plummer profile: {central_dens_plummer:.3e} Msun/kpc^3")
 
-central_dens_plummer = rho_Plummer(0.)
-print(f"central density of plummer profile: {central_dens_plummer:.3e} Msun/kpc^3")
+#print(f"Mass of plummer sphere: {M_Plummer(20.):.3e} Msun within 20 kpc")
 
-print(f"Mass of plummer sphere: {M_Plummer(20.):.3e} Msun within 20 kpc")
-
-print(f"virial mass of halo: {Mvir:.3e} Msun within {Rvir:.3e} kpc")
+#print(f"virial mass of halo: {Mvir:.3e} Msun within {Rvir:.3e} kpc")
 
 
 def SetICs():
@@ -100,13 +104,13 @@ def SetICs():
 	psi = cp.zeros((nf,N,N,N)) + 0j
 
 	IC_dir = os.path.join(os.getcwd(), "../HaloConstructor_public/Code")
-	psi[0,:,:,:] = cp.load(os.path.join(IC_dir, 'eri_200Emax_256.npy')) * cp.sqrt(fraction_FDM)
+	psi[0,:,:,:] = cp.load(os.path.join(IC_dir, f'eri_200Emax_{N}.npy')) * cp.sqrt(fraction_FDM)
 
 	s.set_psi(psi)
 	
 	field_dens = s.GetFieldDensity()
 	central_soliton_dens = cp.max(field_dens)
-	print(f"central soliton density: {central_soliton_dens:.3e} Msun/kpc^3")
+	#print(f"central soliton density: {central_soliton_dens:.3e} Msun/kpc^3")
 
 	s.set_psi(psi)
 	s.set_K()
