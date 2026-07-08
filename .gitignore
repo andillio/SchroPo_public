@@ -1,0 +1,6 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Simulation data drops (keep folder structure, README, meta.toml, plots)
+*.npy
