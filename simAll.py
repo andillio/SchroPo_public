@@ -102,7 +102,7 @@ def SetICs():
 	### set simulation parameters
 	s.SetParams(simName=simName, N = N, data_drops = data_drops, padded=padded,
 	 cf=cf, L = L, m22 = m22, C = C, Tf = Tf, gpu = gpu, r = r, v = v, np = n_p,
-	 mp = M_stars/n_p)
+	 mp = cp.ones(n_stars)*M_stars / n_p)
 	### set initial field
 	s.D = 3
 	s.M_encl_func = M_encl_func # used for particle forces

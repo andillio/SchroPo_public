@@ -21,7 +21,7 @@ import os
 # meshTest2b - use new update rule
 N = 256
 simName = f"haloTest_plummer_{N}"
-data_drops = 150
+data_drops = 5
 padded = True
 cf = .1
 nf = 1
