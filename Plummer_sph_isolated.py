@@ -109,16 +109,16 @@ def StarICs_Plummer():
 
 	#Virial check
 
-	m_star = M_stars / n_stars
+	# m_star = M_stars / n_stars
 
-	W = -cp.sum(m_star * r_mag * au.G*M_stars * r_mag / (r_mag**2 + a_stars**2)**(3/2))
+	# W = -cp.sum(m_star * r_mag * au.G*M_stars * r_mag / (r_mag**2 + a_stars**2)**(3/2))
 
-	KE = 0.5 * cp.sum(m_star * v_mag**2)
+	# KE = 0.5 * cp.sum(m_star * v_mag**2)
 
-	scale_factor = cp.sqrt(cp.abs(W)/(2*KE))
+	# scale_factor = cp.sqrt(cp.abs(W)/(2*KE))
 
-	v_mag *= scale_factor
-	v *= scale_factor
+	# v_mag *= scale_factor
+	# v *= scale_factor
 
 
 	return r, v
