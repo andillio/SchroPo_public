@@ -23,20 +23,20 @@ import Solvers.mesh_solver_vect as MS
 # test is ready to run
 # mestTest2 - control test
 # meshTest2b - use new update rule
-simName = "plummer_isolated_256"
+simName = "plummer_isolated_256_run2"
 Checkpoint = True
 checkpoint_dir = f'/home/jdarne1/Eberhardt_Massive_Stars/SchroPo_public/Data/{simName}'
 
 N = 256
 data_drops = 40
 padded = True
-cf = .1
+cf = .1 / 3.
 nf = 1
 C = au.G*4*np.pi
-Tf = 3000.
+Tf = 1000.
 gpu = True
 fraction_FDM = 0. # zero FDM background for this test
-n_stars = int(1e4)
+n_stars = int(3e4)
 
 # Plummer sphere for the sampled stars — matches haloTest.py
 M_stars = 1e6   # total Plummer mass in solar masses
@@ -180,7 +180,7 @@ def SetICs():
 	s.D = 3
 	# no s.M_encl_func / s.M_encl_func_on: zero external NFW potential
 	s.explicit_particle_forces = True
-	s.eps = 1e-5
+	s.eps = 1e-5 / 3.
 	s.initial_drop = initial_drop
 	s.T_initial = T_initial
 
