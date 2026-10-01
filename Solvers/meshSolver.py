@@ -274,8 +274,8 @@ class Solver(BS.Solver):
 			raise Exception("simName has not been set.\n"+\
 				"set simName before initializing files.")
 
-		if not(os.path.isdir(f"Data/{self.simName}")):
-			os.mkdir(f"Data/{self.simName}")
+		if not(os.path.isdir(self.dataDir + f"{self.simName}")):
+			os.mkdir(self.dataDir + f"{self.simName}")
 		self.OutputToml() # toml file
 		self.OutputICs()
 
@@ -284,12 +284,12 @@ class Solver(BS.Solver):
 		"""
 		outputs the initial conditions
 		"""
-		if not(os.path.isdir(f"Data/{self.simName}/r")) and self.np != None and self.np > 0:
-			os.mkdir(f"Data/{self.simName}/r")
-		if not(os.path.isdir(f"Data/{self.simName}/v")) and self.np != None and self.np > 0:
-			os.mkdir(f"Data/{self.simName}/v")
-		if not(os.path.isdir(f"Data/{self.simName}/psi")):
-			os.mkdir(f"Data/{self.simName}/psi")
+		if not(os.path.isdir(self.dataDir + f"{self.simName}/r")) and self.np != None and self.np > 0:
+			os.mkdir(self.dataDir + f"{self.simName}/r")
+		if not(os.path.isdir(self.dataDir + f"{self.simName}/v")) and self.np != None and self.np > 0:
+			os.mkdir(self.dataDir + f"{self.simName}/v")
+		if not(os.path.isdir(self.dataDir + f"{self.simName}/psi")):
+			os.mkdir(self.dataDir + f"{self.simName}/psi")
 		self.DataDrop(0)
 
 
@@ -333,7 +333,7 @@ class Solver(BS.Solver):
 		c_f                         = {self.cf} # float, timestep courant factor
 		'''
 
-		f = open(f"Data/{self.simName}/meta.toml", "w")
+		f = open(self.dataDir + f"{self.simName}/meta.toml", "w")
 		f.write(text)
 		f.close()
 
@@ -352,7 +352,7 @@ class Solver(BS.Solver):
 			np = cp
 		super().DataDrop(i)
 		if self.savePsi or (i == 0 or i==1 or i == self.data_drops // 2 or i == self.data_drops // 3 or i == self.data_drops):
-			np.save("Data/" + self.simName + f"/psi/drop{i+ self.initial_drop}.npy", self.psi)
+			np.save(self.dataDir + self.simName + f"/psi/drop{i+ self.initial_drop}.npy", self.psi)
 
 
 	def M_encl_to_phi(self):
